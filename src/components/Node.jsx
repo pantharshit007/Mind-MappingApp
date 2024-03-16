@@ -1,6 +1,17 @@
-import React, { useCallback, useState } from 'react'
-import ReactFlow, { useNodesState, useEdgesState, addEdge, MiniMap, Controls, Background, useReactFlow } from 'reactflow'
+import React, { useCallback, useState, useRef } from 'react'
+import ReactFlow, { useNodesState, useEdgesState, addEdge, MiniMap, Controls, Background, useReactFlow, Handle } from 'reactflow'
 import 'reactflow/dist/style.css'
+
+const CustomNode = ({ data }) => {
+    return (
+        <div className='bg-white p-1 rounded-md min-h-max px-2'>
+            <Handle type="target" position="left" />
+            <div>{data.label}</div>
+            <Handle type="source" position="right" />
+        </div>
+    );
+};
+
 
 //Starting Node 
 const initialNodes = [
@@ -22,21 +33,26 @@ function Node() {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [name, setName] = useState('');
+    const reactFlowWrapper = useRef(null);
+    // Get the react flow instance
+    const reactFlowInstance = useReactFlow(reactFlowWrapper);
+    // const handleStyle = { top: '50%', marginTop: '-10px' };
 
     function addNewNode() {
-        setNodes((nds) =>
-            nds.concat({
-                id: (nds.length + 1).toString(),
-                data: { label: name },
-                position: {
-                    x: window.innerWidth / 2,
-                    y: window.innerHeight / 2,
-                },
-                style: { border: "5px solid #9999" },
-            })
-        );
-    };
+        const { x, y, zoom } = reactFlowInstance.getViewport();
+        const newNodePosition = {
+            x: x + (100 / zoom) + Math.random() * zoom,
+            y: y + (100 / zoom) + Math.random() * zoom,
+        };
 
+        setNodes((nds) => nds.concat({
+            id: (nds.length + 1).toString(),
+            type: 'custom',
+            data: { label: name },
+            position: newNodePosition,
+            style: { border: "5px solid #9999" },
+        }));
+    };
 
     const onConnect = useCallback((params) => {
         //param: src and target node ids
@@ -69,9 +85,13 @@ function Node() {
 
     const defaultEdgeOptions = { style: connectionLineStyle, type: "mindmap" };
 
+    const styling = {
+        backgroundColor: 'blue',
+    }
+
     return (
         //mini Map projected in a corner of the window
-        <div className='h-[100vh]'>
+        <div className='h-[80vh]'>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -80,8 +100,14 @@ function Node() {
                 onConnect={onConnect}
                 onLoad={onLoad}
                 defaultEdgeOptions={defaultEdgeOptions}
+                nodeTypes={{ custom: CustomNode }}
+
             >
                 <Controls />
+                {/* <Handle type="source" style={{ left: 0, top: '50%', marginTop: '-10px' }} />
+                <Handle type="target" style={{ right: 0, top: '50%', marginTop: '-10px' }} /> */}
+
+
                 <Background variant="dots" gap={12} size={1} />
                 <MiniMap
                     nodeColor={(color) => {

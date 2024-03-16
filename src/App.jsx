@@ -1,12 +1,15 @@
-import { useState } from 'react'
 import './App.css'
 import Node from './components/Node'
+import { ReactFlowProvider } from 'reactflow'
 
 function App() {
 
   return (
     <div className="">
-      <Node />
+      <ReactFlowProvider >
+        <Node />
+      </ReactFlowProvider>
+
     </div>
   )
 }
