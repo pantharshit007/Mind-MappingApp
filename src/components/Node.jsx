@@ -1,26 +1,60 @@
 import React, { useCallback, useState, useRef } from 'react'
 import ReactFlow, { useNodesState, useEdgesState, addEdge, MiniMap, Controls, Background, useReactFlow, Handle } from 'reactflow'
 import 'reactflow/dist/style.css'
+import sampleData from '../data/sampleData';
 
 const CustomNode = ({ data }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+        console.log(sampleData[data.id])
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+    };
+
     return (
-        <div className='bg-white p-1 rounded-md min-h-max px-2'>
+        <div className='bg-white py-2 rounded-lg min-h-max px-4 min-w-[6rem] text-xs relative'
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
+
             <Handle type="target" position="left" />
             <div>{data.label}</div>
             <Handle type="source" position="right" />
+
+            {isHovered && (
+                <div className="absolute top-0 left-full ml-2 bg-gray-200 p-2 rounded min-w-max min-h-max">
+                    {sampleData[data.id] ? (
+                        <div>
+                            {sampleData[data.id]}
+                        </div>
+                    ) : (<div>NO CONTENT</div>)}
+                </div>
+            )}
         </div>
     );
 };
 
+const initialCustomNode = ({ data }) => {
+    return (
+        <div className='bg-white py-2 rounded-lg min-h-max px-4 min-w-[6rem] text-xs'>
+            <Handle type="source" position="right" /> {/* Right handle by default */}
+            <div>{data.label}</div>
+        </div>
+    );
+};
 
 //Starting Node 
 const initialNodes = [
     {
         id: '1',
-        type: 'input',
-        data: { label: 'Mind Map' },
+        type: 'initialCustom',
+        data: { id: 0, label: 'Mind Map' },
         position: { x: 0, y: 0 },
-        style: { border: "10px solid #9999" },
+        style: { border: "8px solid #9999", borderRadius: "3px" },
     },
 ]
 
@@ -36,7 +70,10 @@ function Node() {
     const reactFlowWrapper = useRef(null);
     // Get the react flow instance
     const reactFlowInstance = useReactFlow(reactFlowWrapper);
-    // const handleStyle = { top: '50%', marginTop: '-10px' };
+    const nodeStyling = {
+        border: "5px solid #9999",
+        borderRadius: "2px",
+    }
 
     function addNewNode() {
         const { x, y, zoom } = reactFlowInstance.getViewport();
@@ -50,7 +87,7 @@ function Node() {
             type: 'custom',
             data: { label: name },
             position: newNodePosition,
-            style: { border: "5px solid #9999" },
+            style: nodeStyling,
         }));
     };
 
@@ -77,17 +114,12 @@ function Node() {
         window.location.reload();
     };
 
-    // const nodeOrigin = [0.5, 0.5];
     const connectionLineStyle = {
-        stroke: "#9999",
+        stroke: "black",
         strokeWidth: 3,
     };
 
     const defaultEdgeOptions = { style: connectionLineStyle, type: "mindmap" };
-
-    const styling = {
-        backgroundColor: 'blue',
-    }
 
     return (
         //mini Map projected in a corner of the window
@@ -100,14 +132,9 @@ function Node() {
                 onConnect={onConnect}
                 onLoad={onLoad}
                 defaultEdgeOptions={defaultEdgeOptions}
-                nodeTypes={{ custom: CustomNode }}
-
+                nodeTypes={{ initialCustom: initialCustomNode, custom: CustomNode }}
             >
                 <Controls />
-                {/* <Handle type="source" style={{ left: 0, top: '50%', marginTop: '-10px' }} />
-                <Handle type="target" style={{ right: 0, top: '50%', marginTop: '-10px' }} /> */}
-
-
                 <Background variant="dots" gap={12} size={1} />
                 <MiniMap
                     nodeColor={(color) => {

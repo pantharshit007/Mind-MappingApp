@@ -6,9 +6,12 @@ function App() {
 
   return (
     <div className="">
-      <ReactFlowProvider >
-        <Node />
-      </ReactFlowProvider>
+      <div className='font-bold text-2xl'>Dashboard</div>
+      <div className='border border-gray-600 rounded-md'>
+        <ReactFlowProvider >
+          <Node />
+        </ReactFlowProvider>
+      </div>
 
     </div>
   )
