@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { useReactFlow } from 'reactflow'
 
-function AddNode({ name, nodeIdCounter, setNodeIdCounter, setNodes }) {
+function AddNode({ name, nodeIdCounter, setNodeIdCounter, setNodes, setName }) {
     const reactFlowWrapper = useRef(null);
     const reactFlowInstance = useReactFlow(reactFlowWrapper);   // Get the react flow instance
     const nodeStyling = {
@@ -10,6 +10,7 @@ function AddNode({ name, nodeIdCounter, setNodeIdCounter, setNodes }) {
     }
 
     function addNewNode() {
+        if (name.length === 0) return;
         const { x, y, zoom } = reactFlowInstance.getViewport();
         const newNodePosition = {
             x: x + (100 / zoom) + Math.random() * zoom,
@@ -20,21 +21,38 @@ function AddNode({ name, nodeIdCounter, setNodeIdCounter, setNodes }) {
         setNodeIdCounter(nodeIdCounter + 1); // Increment counter
 
         setNodes((nds) => nds.concat({
-            id: (newId + 1).toString(),
+            id: (nds.length + 1).toString(),
             type: 'custom',
             data: { id: newId - 1, label: name },
             position: newNodePosition,
-            style: nodeStyling,
+            // style: nodeStyling,
         }));
 
-        console.log("add node: " + newId - 1);
+        setName('');
     };
 
     return (
-        <button onClick={addNewNode}
-            className='bg-blue-400 rounded-md px-1 text-white'>
-            Add Node
-        </button>
+        <div className='flex justify-start  items-baseline '>
+            <div className='flex flex-row gap-x-4 w-[40%] '>
+                <input type="text"
+                    onChange={(event) => setName(event.target.value)}
+                    name='title'
+                    value={name}
+                    placeholder='New Node'
+                    className='bg-slate-200 border-2 rounded-md border-none focus:outline-none px-5 py-1'
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter') addNewNode();
+                    }}
+
+                />
+                <button onClick={addNewNode}
+                    className='bg-green-600 rounded-md px-2 py-1 font-semibold text-white hover:scale-105 duration-200 min-w-[7rem] lg:w-max'
+                >
+                    Add Node
+                </button>
+            </div>
+        </div>
+
     )
 }
 

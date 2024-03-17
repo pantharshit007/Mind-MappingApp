@@ -5,7 +5,7 @@ export const initialNodes = [
         type: 'initialCustom',
         data: { id: 0, label: 'Mind Map' },
         position: { x: 0, y: 0 },
-        style: { border: "8px solid #9999", borderRadius: "3px" },
+        style: { border: "6px solid gray", borderRadius: "3px" },
     },
 ]
 

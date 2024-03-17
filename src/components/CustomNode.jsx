@@ -17,7 +17,7 @@ export const CustomNode = ({ data }) => {
     };
 
     return (
-        <div className='bg-white py-2 rounded-lg min-h-max px-4 min-w-[6rem] text-xs relative'
+        <div className='bg-white border-gray-500 border-[5px] rounded-sm py-2  min-h-max px-4 min-w-[6rem] text-sm font-semibold relative z-[100]'
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
