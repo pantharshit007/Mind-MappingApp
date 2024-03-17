@@ -1,64 +1,11 @@
 import React, { useCallback, useState, useRef } from 'react'
 import ReactFlow, { useNodesState, useEdgesState, addEdge, MiniMap, Controls, Background, useReactFlow, Handle } from 'reactflow'
 import 'reactflow/dist/style.css'
-import sampleData from '../data/sampleData';
+import { CustomNode, initialCustomNode } from './CustomNode'
+import { initialNodes, initialEdges } from './initialNode'
+import { saveMindMap, loadMindMap } from '../storage/storage'
+import AddNode from './AddNode'
 
-const CustomNode = ({ data }) => {
-    const [isHovered, setIsHovered] = useState(false);
-
-    const handleMouseEnter = () => {
-        setIsHovered(true);
-        console.log(sampleData[data.id])
-    };
-
-    const handleMouseLeave = () => {
-        setIsHovered(false);
-    };
-
-    return (
-        <div className='bg-white py-2 rounded-lg min-h-max px-4 min-w-[6rem] text-xs relative'
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-        >
-
-            <Handle type="target" position="left" />
-            <div>{data.label}</div>
-            <Handle type="source" position="right" />
-
-            {isHovered && (
-                <div className="absolute top-0 left-full ml-2 bg-gray-200 p-2 rounded min-w-max min-h-max">
-                    {sampleData[data.id] ? (
-                        <div>
-                            {sampleData[data.id]}
-                        </div>
-                    ) : (<div>NO CONTENT</div>)}
-                </div>
-            )}
-        </div>
-    );
-};
-
-const initialCustomNode = ({ data }) => {
-    return (
-        <div className='bg-white py-2 rounded-lg min-h-max px-4 min-w-[6rem] text-xs'>
-            <Handle type="source" position="right" /> {/* Right handle by default */}
-            <div>{data.label}</div>
-        </div>
-    );
-};
-
-//Starting Node 
-const initialNodes = [
-    {
-        id: '1',
-        type: 'initialCustom',
-        data: { id: 0, label: 'Mind Map' },
-        position: { x: 0, y: 0 },
-        style: { border: "8px solid #9999", borderRadius: "3px" },
-    },
-]
-
-const initialEdges = [];
 const onLoad = (reactFlowInstance) => {
     reactFlowInstance.fitView();
 };
@@ -67,29 +14,32 @@ function Node() {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [name, setName] = useState('');
-    const reactFlowWrapper = useRef(null);
-    // Get the react flow instance
-    const reactFlowInstance = useReactFlow(reactFlowWrapper);
-    const nodeStyling = {
-        border: "5px solid #9999",
-        borderRadius: "2px",
-    }
+    const [nodeIdCounter, setNodeIdCounter] = useState(initialNodes.length); // Initialize based on initial nodes
+    // const reactFlowWrapper = useRef(null);
+    // const reactFlowInstance = useReactFlow(reactFlowWrapper);   // Get the react flow instance
+    // const nodeStyling = {
+    //     border: "5px solid #9999",
+    //     borderRadius: "2px",
+    // }
 
-    function addNewNode() {
-        const { x, y, zoom } = reactFlowInstance.getViewport();
-        const newNodePosition = {
-            x: x + (100 / zoom) + Math.random() * zoom,
-            y: y + (100 / zoom) + Math.random() * zoom,
-        };
+    // function addNewNode() {
+    //     const { x, y, zoom } = reactFlowInstance.getViewport();
+    //     const newNodePosition = {
+    //         x: x + (100 / zoom) + Math.random() * zoom,
+    //         y: y + (100 / zoom) + Math.random() * zoom,
+    //     };
 
-        setNodes((nds) => nds.concat({
-            id: (nds.length + 1).toString(),
-            type: 'custom',
-            data: { label: name },
-            position: newNodePosition,
-            style: nodeStyling,
-        }));
-    };
+    //     const newId = nodeIdCounter;
+    //     setNodeIdCounter(nodeIdCounter + 1); // Increment counter
+
+    //     setNodes((nds) => nds.concat({
+    //         id: (newId + 1).toString(),
+    //         type: 'custom',
+    //         data: { id: newId - 1, label: name },
+    //         position: newNodePosition,
+    //         style: nodeStyling,
+    //     }));
+    // };
 
     const onConnect = useCallback((params) => {
         //param: src and target node ids
@@ -98,7 +48,7 @@ function Node() {
 
     const handleSaveClick = () => {
         saveMindMap(nodes, edges);
-        console.log(nodes);
+        // console.log(nodes);
     };
 
     const handleLoadClick = () => {
@@ -106,7 +56,7 @@ function Node() {
         if (loadedData) {
             setNodes(loadedData.nodes);
             setEdges(loadedData.edges);
-            console.log(loadedData);
+            // console.log(loadedData);
         }
     };
 
@@ -150,10 +100,11 @@ function Node() {
                     name='title'
                     className='border-slate-500 border-2 rounded-md' />
 
-                <button onClick={addNewNode}
+                {/* <button onClick={addNewNode}
                     className='bg-blue-400 rounded-md px-1 text-white'>
                     Add Node
-                </button>
+                </button> */}
+                <AddNode name={name} nodeIdCounter={nodeIdCounter} setNodeIdCounter={setNodeIdCounter} setNodes={setNodes} />
             </div>
 
             <div className='flex justify-around'>

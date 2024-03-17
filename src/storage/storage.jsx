@@ -7,3 +7,5 @@ export const saveMindMap = (nodes, edges) => {
     const data = { nodes, edges };
     localStorage.setItem("mindMapData", JSON.stringify(data));
 };
+
+export default { loadMindMap, saveMindMap }
